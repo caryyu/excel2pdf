@@ -11,3 +11,4 @@
 1、对单个 Excel 文件的 Sheet 进行 PDF 的页处理，并把 Sheet 名称当做锚；  
 2、支持多个 Excel 文件的 Sheet 合并，并在 PDF 页后面进行追加；  
 3、实现自动分辨 Excel 版式并对内容进行有效的缩放。  
+  
