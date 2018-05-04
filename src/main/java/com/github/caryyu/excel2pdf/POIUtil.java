@@ -21,6 +21,32 @@ import java.io.IOException;
  * Created by cary on 6/15/17.
  */
 public class POIUtil {
+	public static int[] getColorRGB(Color color){
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+
+        if (color instanceof HSSFColor) {
+            HSSFColor hssfColor = (HSSFColor) color;
+            short[] rgb = hssfColor.getTriplet();
+            red = rgb[0];
+            green = rgb[1];
+            blue = rgb[2];
+        }else  if (color instanceof XSSFColor) {
+            XSSFColor xssfColor = (XSSFColor) color;
+            byte[] rgb = xssfColor.getRGB();
+            if(rgb != null) {
+                red = (rgb[0] < 0) ? (rgb[0] + 256) : rgb[0];
+                green = (rgb[1] < 0) ? (rgb[1] + 256) : rgb[1];
+                blue = (rgb[2] < 0) ? (rgb[2] + 256) : rgb[2];
+            }
+        }
+
+        if(red != 0 || green != 0 || blue != 0){
+            return new int[] {red,green,blue};
+        }else return new int[] {255,255,255};
+    }
+	
     public static int getRGB(Color color){
         int result = 0x00FFFFFF;
 
@@ -34,11 +60,9 @@ public class POIUtil {
             red = rgb[0];
             green = rgb[1];
             blue = rgb[2];
-        }
-
-        if (color instanceof XSSFColor) {
+        }else  if (color instanceof XSSFColor) {
             XSSFColor xssfColor = (XSSFColor) color;
-            byte[] rgb = xssfColor.getRgb();
+            byte[] rgb = xssfColor.getRGB();
             if(rgb != null) {
                 red = (rgb[0] < 0) ? (rgb[0] + 256) : rgb[0];
                 green = (rgb[1] < 0) ? (rgb[1] + 256) : rgb[1];
