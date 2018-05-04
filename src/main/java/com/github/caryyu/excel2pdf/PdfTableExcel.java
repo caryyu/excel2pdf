@@ -84,7 +84,7 @@ public class PdfTableExcel {
 				if (isUsed(cell.getColumnIndex(), row.getRowNum())) {
 					continue;
 				}
-				// cell.setCellType(Cell.CELL_TYPE_STRING);
+				//cell.setCellType(Cell.CELL_TYPE_STRING);
 				CellRangeAddress range = getColspanRowspanByExcel(row.getRowNum(), cell.getColumnIndex());
 				//
 				int rowspan = 1;
@@ -95,7 +95,10 @@ public class PdfTableExcel {
 				}
 				// PDF单元格
 				PdfPCell pdfpCell = new PdfPCell();
-				pdfpCell.setBackgroundColor(new BaseColor(getBackgroundColorByExcel(cell.getCellStyle())));
+
+				int[] rgb = getBackgroundColor(cell.getCellStyle());
+				pdfpCell.setBackgroundColor(new BaseColor(rgb[0],rgb[1],rgb[2]));
+//				pdfpCell.setBackgroundColor(new BaseColor(getBackgroundColorByExcel(cell.getCellStyle())));
 				pdfpCell.setColspan(colspan);
 				pdfpCell.setRowspan(rowspan);
 				pdfpCell.setVerticalAlignment(getVAlignByExcel(cell.getCellStyle().getVerticalAlignment()));
@@ -265,25 +268,31 @@ public class PdfTableExcel {
 	}
 
 	protected Font getFontByExcel(CellStyle style) {
-		//Font result = new Font(Resource.BASE_FONT_CHINESE, 8, Font.NORMAL);
 		Workbook wb = excel.getWorkbook();
 		// 字体样式索引
 		short index = style.getFontIndex();
 		org.apache.poi.ss.usermodel.Font font = wb.getFontAt(index);
 		// 轉換 POI Font 到 iText Font
 		Font itextFont = Resource.getFont((HSSFFont) font);
-//		if (itextFont != null)
 		Font result = itextFont;
+		// 粗體+斜體
+		if (font.getBoldweight() == org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD
+				&& font.getItalic()) {
+			result.setStyle(Font.BOLDITALIC);
+		}else if (font.getBoldweight() == org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD) { // 粗體
+			result.setStyle(Font.BOLD);
+		}else if (font.getItalic()) { // 斜體
+			result.setStyle(Font.ITALIC);
+		}
+		
 		// 字体颜色
 		int colorIndex = font.getColor();
-		if (font.getBoldweight() == org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD) {
-			result.setStyle(Font.BOLD);
-		}
 		HSSFColor color = HSSFColor.getIndexHash().get(colorIndex);
 		if (color != null) {
 			int rbg = POIUtil.getRGB(color);
 			result.setColor(new BaseColor(rbg));
 		}
+		
 		// 下划线
 		FontUnderline underline = FontUnderline.valueOf(font.getUnderline());
 		if (underline == FontUnderline.SINGLE) {
@@ -293,6 +302,11 @@ public class PdfTableExcel {
 		return result;
 	}
 
+	protected int[] getBackgroundColor(CellStyle style) {
+		Color color = style.getFillForegroundColorColor();
+		return POIUtil.getColorRGB(color);
+	}
+	
 	protected int getBackgroundColorByExcel(CellStyle style) {
 		Color color = style.getFillForegroundColorColor();
 		return POIUtil.getRGB(color);
