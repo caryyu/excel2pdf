@@ -34,7 +34,7 @@ public class POIUtil {
             blue = rgb[2];
         }else  if (color instanceof XSSFColor) {
             XSSFColor xssfColor = (XSSFColor) color;
-            byte[] rgb = xssfColor.getRGB();
+            byte[] rgb = xssfColor.getRgb();
             if(rgb != null) {
                 red = (rgb[0] < 0) ? (rgb[0] + 256) : rgb[0];
                 green = (rgb[1] < 0) ? (rgb[1] + 256) : rgb[1];
@@ -62,7 +62,7 @@ public class POIUtil {
             blue = rgb[2];
         }else  if (color instanceof XSSFColor) {
             XSSFColor xssfColor = (XSSFColor) color;
-            byte[] rgb = xssfColor.getRGB();
+            byte[] rgb = xssfColor.getRgb();
             if(rgb != null) {
                 red = (rgb[0] < 0) ? (rgb[0] + 256) : rgb[0];
                 green = (rgb[1] < 0) ? (rgb[1] + 256) : rgb[1];
