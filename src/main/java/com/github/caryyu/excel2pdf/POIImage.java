@@ -27,6 +27,10 @@ public class POIImage {
 //      List<PictureData> pictures = (List<PictureData>) wb.getAllPictures();
         if (sheet instanceof HSSFSheet) {
             HSSFSheet hssfSheet = (HSSFSheet) sheet;
+            // 2018/05/03 added by Ray Hu
+            if(hssfSheet.getDrawingPatriarch() == null) {
+            	return this;
+            }
             List<HSSFShape> shapes = hssfSheet.getDrawingPatriarch().getChildren();
             for (HSSFShape shape : shapes) {
                 HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
