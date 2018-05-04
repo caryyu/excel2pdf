@@ -4,40 +4,72 @@ import com.itextpdf.text.DocumentException;
 import org.junit.Test;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Excel2PDFTest {
-    @Test
-    public void testOrigin() throws IOException, DocumentException {
-        FileInputStream fis1 = new FileInputStream(new File("D:\\pdfexport\\MAD 5-3-05-Octavia NF-20131025.xls"));
-        FileInputStream fis2 = new FileInputStream(new File("D:\\pdfexport\\MAD 6-1-47-Octavia NF-20131025.xls"));
-        FileInputStream fis3 = new FileInputStream(new File("D:\\pdfexport\\MAD 038-Superb FL DS-20131025.xls"));
+	String testExcelDir = "testexcel";
+//	String[][] excelFiles = { 
+//			{ "1.薪資明細表", "testexcel/salary.xls" },
+//			{ "2.工時明細表", "testexcel/salarytimerecords.xls" },
+//			{ "3.加班明細表", "testexcel/overtimerecords.xls" },
+//			{ "3.悠遊卡樣本", "testexcel/悠遊卡樣本.xls" }
+//	};
 
-        FileOutputStream fos = new FileOutputStream(new File("D:\\test.pdf"));
+	public void setup() {
 
-        List<ExcelObject> objects = new ArrayList<ExcelObject>();
-        objects.add(new ExcelObject("1.MAD 5-3-05-Octavia NF-20131025.xls",fis1));
-        objects.add(new ExcelObject("2.MAD 6-1-47-Octavia NF-20131025.xls",fis2));
-        objects.add(new ExcelObject("3.MAD 038-Superb FL DS-20131025.xls",fis3));
+	}
 
-        Excel2Pdf pdf = new Excel2Pdf(objects , fos);
+	Map<String,File> getExcelFiles(){
+		Map<String,File> excelFiles = new LinkedHashMap<String,File>();
+		File dir = new File(testExcelDir);
+		if(dir.isDirectory()) {
+			File[] files = dir.listFiles(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.toLowerCase().endsWith("xls");
+				}
+			});
+			for(int i=0;i<files.length;i++) {
+				String idx = (i+1)+".";
+				excelFiles.put(idx+files[i].getName(),files[i]);
+			}
+		}
+		return excelFiles;
+	}
+	@Test
+	public void testCombineAll() throws IOException, DocumentException {
+		List<ExcelObject> objects = new ArrayList<ExcelObject>();
+		Map<String,File> excelFiles = getExcelFiles();
+		for(String index:excelFiles.keySet()) {
+			File excelFile = excelFiles.get(index);
+			FileInputStream fis = new FileInputStream(excelFile);
+			objects.add(new ExcelObject(index, fis));
+		}
 
-        pdf.convert();
-    }
-    
-    @Test
-    public void testSingle() throws IOException, DocumentException {
-        FileInputStream in = new FileInputStream("/Users/cary/Desktop/naked innovation talent managment.xlsx");
+		FileOutputStream fos = new FileOutputStream(new File("testpdf/allInOne.pdf"));
+		Excel2Pdf pdf = new Excel2Pdf(objects, fos);
 
-        List<ExcelObject> objects = new ArrayList<ExcelObject>();
-        objects.add(new ExcelObject("1.MAD 5-3-05-Octavia NF-20131025.xls",in));
+		pdf.convert();
+	}
 
-        FileOutputStream fos = new FileOutputStream(new File("/Users/cary/Desktop/naked innovation talent managment.pdf"));
+	public static void main(String[] args) throws Exception {
+		Excel2PDFTest test = new Excel2PDFTest();
+		test.testSingle();
+	}
 
-
-        Excel2Pdf pdf = new Excel2Pdf(objects , fos);
-
-        pdf.convert();
-    }
+	@Test
+	public void testSingle() throws IOException, DocumentException {
+		Map<String,File> excelFiles = getExcelFiles();
+		for(String index:excelFiles.keySet()) {
+			File excelFile = excelFiles.get(index);
+			List<ExcelObject> objects = new ArrayList<ExcelObject>();
+			FileInputStream fis = new FileInputStream(excelFile);
+			objects.add(new ExcelObject(index, fis));
+			String excel = excelFile.getName();
+			File output = new File("testpdf/" + excel.substring(0, excel.lastIndexOf(".")) + ".pdf");
+			output.getParentFile().mkdirs();
+			FileOutputStream fos = new FileOutputStream(output);
+			Excel2Pdf pdf = new Excel2Pdf(objects, fos);
+			pdf.convert();
+		}
+	}
 }
