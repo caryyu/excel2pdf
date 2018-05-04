@@ -61,15 +61,21 @@ public class Excel2PDFTest {
 		for (String index : excelFiles.keySet()) {
 			File excelFile = excelFiles.get(index);
 			List<ExcelObject> objects = new ArrayList<ExcelObject>();
-			try (FileInputStream fis = new FileInputStream(excelFile)) {
+			FileInputStream fis = new FileInputStream(excelFile);
+			FileOutputStream fos = null;
+			try {
 				objects.add(new ExcelObject(index, fis));
 				String excel = excelFile.getName();
 				File output = new File(outputDir+"/" + excel.substring(0, excel.lastIndexOf(".")) + ".pdf");
 				output.getParentFile().mkdirs();
-				try (FileOutputStream fos = new FileOutputStream(output)) {
-					Excel2Pdf pdf = new Excel2Pdf(objects, fos);
-					pdf.convert();
-				}
+				fos = new FileOutputStream(output);
+				Excel2Pdf pdf = new Excel2Pdf(objects, fos);
+				pdf.convert();
+			}finally {
+				if(fis != null)
+					fis.close();
+				if(fos != null)
+					fos.close();
 			}
 		}
 	}
