@@ -3,26 +3,52 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.github.caryyu</groupId>
-	<artifactId>excel2pdf</artifactId>
-	<version>1.0-SNAPSHOT</version>
+ 	<groupId>com.github.caryyu</groupId>
+    <artifactId>excel2pdf</artifactId>
+    <name>excel2pdf</name>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+    <description>An easy way to convert Excel to PDF by Java code based on Apache POI and itextpdf.</description>
+    <url>https://github.com/caryyu/excel2pdf</url>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/caryyu/excel2pdf</url>
+        <connection>scm:git:https://github.com/caryyu/excel2pdf.git</connection>
+        <developerConnection>scm:git:https://github.com/caryyu/excel2pdf.git</developerConnection>
+        <tag>excel2pdf-1.0</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>caryyu</name>
+            <email>343194291@qq.com</email>
+        </developer>
+    </developers>
+    
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<java.version>1.6</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
+	<distributionManagement>
+        <snapshotRepository>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
-<!-- 
-	<testResources>
-		<testResource>
-			<directory>src/test/resources</directory>
-			<includes>
-				<include>*.xls</include>
-			</includes>
-		</testResource>
-	</testResources>
- -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -47,22 +73,22 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.12</version>
+			<version>3.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.12</version>
+			<version>3.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.12</version>
+			<version>3.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
-			<version>5.5.13</version>
+			<version>5.5.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.itextpdf</groupId>
