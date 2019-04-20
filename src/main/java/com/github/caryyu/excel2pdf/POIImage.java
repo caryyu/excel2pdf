@@ -21,27 +21,26 @@ public class POIImage {
     protected ClientAnchor anchor;
 
     public POIImage getCellImage(Cell cell) {
-        byte[] result = null;
         Sheet sheet = cell.getSheet();
-//      Workbook wb = sheet.getWorkbook();
-//      List<PictureData> pictures = (List<PictureData>) wb.getAllPictures();
         if (sheet instanceof HSSFSheet) {
             HSSFSheet hssfSheet = (HSSFSheet) sheet;
-            List<HSSFShape> shapes = hssfSheet.getDrawingPatriarch().getChildren();
-            for (HSSFShape shape : shapes) {
-                HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
-                if (shape instanceof HSSFPicture) {
-                    HSSFPicture pic = (HSSFPicture) shape;
-                    PictureData data = pic.getPictureData();
-                    String extension = data.suggestFileExtension();
-                    int row1 = anchor.getRow1();
-                    int row2 = anchor.getRow2();
-                    int col1 = anchor.getCol1();
-                    int col2 = anchor.getCol2();
-                    if(row1 == cell.getRowIndex() && col1 == cell.getColumnIndex()){
-                        dimension = pic.getImageDimension();
-                        this.anchor = anchor;
-                        this.bytes = data.getData();
+            if (hssfSheet.getDrawingPatriarch() != null) {
+                List<HSSFShape> shapes = hssfSheet.getDrawingPatriarch().getChildren();
+                for (HSSFShape shape : shapes) {
+                    HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
+                    if (shape instanceof HSSFPicture) {
+                        HSSFPicture pic = (HSSFPicture) shape;
+                        PictureData data = pic.getPictureData();
+                        String extension = data.suggestFileExtension();
+                        int row1 = anchor.getRow1();
+                        int row2 = anchor.getRow2();
+                        int col1 = anchor.getCol1();
+                        int col2 = anchor.getCol2();
+                        if (row1 == cell.getRowIndex() && col1 == cell.getColumnIndex()) {
+                            dimension = pic.getImageDimension();
+                            this.anchor = anchor;
+                            this.bytes = data.getData();
+                        }
                     }
                 }
             }
