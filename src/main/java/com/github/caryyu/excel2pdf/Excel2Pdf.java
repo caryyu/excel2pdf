@@ -13,7 +13,6 @@ import java.util.List;
  * Created by cary on 6/15/17.
  */
 public class Excel2Pdf extends PdfTool{
-    //
     protected List<ExcelObject> objects = new ArrayList<ExcelObject>();
 
     /**

@@ -4,7 +4,9 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.format.CellNumberFormatter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
@@ -17,11 +19,8 @@ import java.util.List;
  * Created by cary on 6/15/17.
  */
 public class PdfTableExcel {
-    //ExcelObject
     protected ExcelObject excelObject;
-    //excel
     protected Excel excel;
-    //
     protected boolean setting = false;
 
     /**
@@ -45,45 +44,62 @@ public class PdfTableExcel {
         return toParseContent(sheet);
     }
 
+//    private PdfPCell createPdfPCell(int colIndex, int rowIndex, Cell cell) {
+//
+//    }
+
     protected PdfPTable toParseContent(Sheet sheet) throws BadElementException, MalformedURLException, IOException{
-        int rowlength = sheet.getLastRowNum();
+        int rows = sheet.getPhysicalNumberOfRows();
+
         List<PdfPCell> cells = new ArrayList<PdfPCell>();
         float[] widths = null;
         float mw = 0;
-        for (int i = 0; i < rowlength; i++) {
+        for (int i = 0; i < rows; i++) {
             Row row = sheet.getRow(i);
-            float[] cws = new float[row.getLastCellNum()];
-            for (int j = 0; j < row.getLastCellNum(); j++) {
+            int columns = row.getLastCellNum();
+
+            float[] cws = new float[columns];
+            for (int j = 0; j < columns; j++) {
                 Cell cell = row.getCell(j);
+                if (cell == null) cell = row.createCell(j);
+
                 float cw = getPOIColumnWidth(cell);
                 cws[cell.getColumnIndex()] = cw;
-                if(isUsed(cell.getColumnIndex(), row.getRowNum())){
-                    continue;
-                }
+
+//                if(isUsed(cell.getColumnIndex(), row.getRowNum())){
+//                    continue;
+//                }
+
                 cell.setCellType(Cell.CELL_TYPE_STRING);
                 CellRangeAddress range = getColspanRowspanByExcel(row.getRowNum(), cell.getColumnIndex());
-                //
+
                 int rowspan = 1;
                 int colspan = 1;
                 if (range != null) {
                     rowspan = range.getLastRow() - range.getFirstRow() + 1;
                     colspan = range.getLastColumn() - range.getFirstColumn() + 1;
                 }
-                //PDF单元格
+
                 PdfPCell pdfpCell = new PdfPCell();
-                pdfpCell.setBackgroundColor(new BaseColor(getBackgroundColorByExcel(cell.getCellStyle())));
+                pdfpCell.setBackgroundColor(new BaseColor(POIUtil.getRGB(
+                        cell.getCellStyle().getFillForegroundColorColor())));
                 pdfpCell.setColspan(colspan);
                 pdfpCell.setRowspan(rowspan);
                 pdfpCell.setVerticalAlignment(getVAlignByExcel(cell.getCellStyle().getVerticalAlignment()));
                 pdfpCell.setHorizontalAlignment(getHAlignByExcel(cell.getCellStyle().getAlignment()));
                 pdfpCell.setPhrase(getPhrase(cell));
-                pdfpCell.setFixedHeight(this.getPixelHeight(row.getHeightInPoints()));
+
+                if (sheet.getDefaultRowHeightInPoints() != row.getHeightInPoints()) {
+                    pdfpCell.setFixedHeight(this.getPixelHeight(row.getHeightInPoints()));
+                }
+
                 addBorderByExcel(pdfpCell, cell.getCellStyle());
                 addImageByPOICell(pdfpCell , cell , cw);
-                //
+
                 cells.add(pdfpCell);
                 j += colspan - 1;
             }
+
             float rw = 0;
             for (int j = 0; j < cws.length; j++) {
                 rw += cws[j];
@@ -93,7 +109,7 @@ public class PdfTableExcel {
                 mw = rw;
             }
         }
-        //
+
         PdfPTable table = new PdfPTable(widths);
         table.setWidthPercentage(100);
 //        table.setLockedWidth(true);
@@ -103,7 +119,7 @@ public class PdfTableExcel {
         return table;
     }
 
-    protected Phrase getPhrase(Cell cell){
+    protected Phrase getPhrase(Cell cell) {
         if(this.setting || this.excelObject.getAnchorName() == null){
             return new Phrase(cell.getStringCellValue(), getFontByExcel(cell.getCellStyle()));
         }
@@ -193,31 +209,27 @@ public class PdfTableExcel {
     protected Font getFontByExcel(CellStyle style) {
         Font result = new Font(Resource.BASE_FONT_CHINESE , 8 , Font.NORMAL);
         Workbook wb = excel.getWorkbook();
-        //字体样式索引
+
         short index = style.getFontIndex();
         org.apache.poi.ss.usermodel.Font font = wb.getFontAt(index);
-        //字体颜色
-        int colorIndex = font.getColor();
+
         if(font.getBoldweight() == org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD){
             result.setStyle(Font.BOLD);
         }
-        HSSFColor color = HSSFColor.getIndexHash().get(colorIndex);
+
+        HSSFColor color = HSSFColor.getIndexHash().get(font.getColor());
+
         if(color != null){
             int rbg = POIUtil.getRGB(color);
             result.setColor(new BaseColor(rbg));
         }
-        //下划线
+
         FontUnderline underline = FontUnderline.valueOf(font.getUnderline());
         if(underline == FontUnderline.SINGLE){
             String ulString = Font.FontStyle.UNDERLINE.getValue();
             result.setStyle(ulString);
         }
         return result;
-    }
-
-    protected int getBackgroundColorByExcel(CellStyle style) {
-        Color color = style.getFillForegroundColorColor();
-        return POIUtil.getRGB(color);
     }
 
     protected void addBorderByExcel(PdfPCell cell , CellStyle style) {
