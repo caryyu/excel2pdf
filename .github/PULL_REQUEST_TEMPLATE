@@ -1,14 +1,8 @@
-**What kind of change does this PR introduce?** (check at least one)
+**主要修改了哪些地方，问题类型是什么？**
 
-- [ ] Bugfix
-- [ ] Feature
-- [ ] Code style update
-- [ ] Refactor
-- [ ] Build-related changes
-- [ ] Other, please describe:
+- [ ] 问题修复
+- [ ] 新功能
+- [ ] 代码重构
+- [ ] 其它问题
 
-
-**The description of the PR:**
-
-
-**Other information:**
+**当前 PR 描述:**
